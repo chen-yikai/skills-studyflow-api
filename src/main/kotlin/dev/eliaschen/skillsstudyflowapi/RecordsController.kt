@@ -11,9 +11,11 @@ import org.springframework.core.io.UrlResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestBody
@@ -45,7 +47,8 @@ data class Record(
     val id: String,
     val name: String,
     val file: String,
-    val note: List<Note>
+    val note: List<Note>,
+    val tags:List<String>
 )
 
 @RestController
@@ -70,25 +73,28 @@ class RecordsController {
 
     @PostMapping
     @Operation(
-        summary = "Create a new record", 
+        summary = "Create a new record",
         description = "Creates a new record with the provided data. Note: record ID must match the file name, and the file must be uploaded first."
     )
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "201", description = "Record created successfully"),
-        ApiResponse(responseCode = "400", description = "Invalid request data - ID/file mismatch, file not found, or duplicate record")
-    ])
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "201", description = "Record created successfully"),
+            ApiResponse(
+                responseCode = "400",
+                description = "Invalid request data - ID/file mismatch, file not found, or duplicate record"
+            )
+        ]
+    )
     fun createRecord(@RequestBody record: Record): ResponseEntity<Map<String, String>> {
         logger.info("Creating new record with ID: ${record.id}")
-        
-        // Validate that record ID matches the file name
+
         if (record.id != record.file) {
             logger.warn("Validation failed: Record ID '${record.id}' does not match file name '${record.file}'")
             return ResponseEntity.badRequest().body(
                 mapOf("message" to "Record ID must match the file name. ID: '${record.id}', File: '${record.file}'")
             )
         }
-        
-        // Check if the uploaded file actually exists
+
         val filePath = uploadDir.resolve(record.file)
         if (!Files.exists(filePath)) {
             logger.warn("Validation failed: File '${record.file}' not found in uploads directory")
@@ -96,15 +102,14 @@ class RecordsController {
                 mapOf("message" to "File '${record.file}' must be uploaded before creating a record. Please upload the file first.")
             )
         }
-        
-        // Check if record with this ID already exists
+
         if (records.any { it.id == record.id }) {
             logger.warn("Validation failed: Record with ID '${record.id}' already exists")
             return ResponseEntity.badRequest().body(
                 mapOf("message" to "Record with ID '${record.id}' already exists")
             )
         }
-        
+
         try {
             records.add(record)
             logger.info("Record created successfully: ${record.id}")
@@ -113,6 +118,59 @@ class RecordsController {
             logger.error("Error creating record: ${ex.message}")
             return ResponseEntity.badRequest().body(mapOf("message" to "Error creating record: ${ex.message}"))
         }
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update an existing record", description = "Updates the details of an existing record.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Record updated successfully"),
+            ApiResponse(
+                responseCode = "404", description = "Record not found"
+            )
+        ]
+    )
+    fun updateRecord(@PathVariable id: String, @RequestBody updatedRecord: Record): ResponseEntity<Map<String, String>> {
+        logger.info("Updating record with ID: $id")
+
+        val existingRecordIndex = records.indexOfFirst { it.id == id }
+        if (existingRecordIndex == -1) {
+            logger.warn("Update failed: Record with ID '$id' not found")
+            return ResponseEntity.status(404).body(
+                mapOf("message" to "Record not found")
+            )
+        }
+
+        // Ensure the updated record maintains the same ID
+        val recordToUpdate = updatedRecord.copy(id = id)
+        records[existingRecordIndex] = recordToUpdate
+
+        logger.info("Record with ID '$id' updated successfully")
+        return ResponseEntity.ok(mapOf("message" to "Record updated successfully", "id" to id))
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a record", description = "Deletes a record by its ID")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Record deleted successfully"),
+            ApiResponse(responseCode = "404", description = "Record not found")
+        ]
+    )
+    fun deleteRecord(@PathVariable id: String): ResponseEntity<Map<String, String>> {
+        logger.info("Deleting record with ID: $id")
+
+        val existingRecordIndex = records.indexOfFirst { it.id == id }
+        if (existingRecordIndex == -1) {
+            logger.warn("Delete failed: Record with ID '$id' not found")
+            return ResponseEntity.status(404).body(
+                mapOf("message" to "Record not found")
+            )
+        }
+
+        records.removeAt(existingRecordIndex)
+        logger.info("Record with ID '$id' deleted successfully")
+        return ResponseEntity.ok(mapOf("message" to "Record deleted successfully", "id" to id))
     }
 
     @GetMapping("/files")
@@ -147,6 +205,37 @@ class RecordsController {
                 .body(resource)
         } else {
             ResponseEntity.notFound().build()
+        }
+    }
+
+    @DeleteMapping("/files/{filename}")
+    @Operation(summary = "Delete a file", description = "Deletes a file from the server")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "File deleted successfully"),
+            ApiResponse(responseCode = "404", description = "File not found")
+        ]
+    )
+    fun deleteFile(@Parameter(description = "Name of the file to delete") @PathVariable filename: String): ResponseEntity<Map<String, String>> {
+        logger.info("Deleting file: $filename")
+
+        val filePath = uploadDir.resolve(filename)
+        if (!Files.exists(filePath)) {
+            logger.warn("Delete failed: File '$filename' not found")
+            return ResponseEntity.status(404).body(
+                mapOf("message" to "File not found")
+            )
+        }
+
+        try {
+            Files.delete(filePath)
+            logger.info("File '$filename' deleted successfully")
+            return ResponseEntity.ok(mapOf("message" to "File deleted successfully", "filename" to filename))
+        } catch (ex: Exception) {
+            logger.error("Error deleting file '$filename': ${ex.message}")
+            return ResponseEntity.status(500).body(
+                mapOf("message" to "Error deleting file: ${ex.message}")
+            )
         }
     }
 

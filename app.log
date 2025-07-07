@@ -32,17 +32,41 @@ Daemon will be stopped at the end of the build
 [2m2025-07-07T22:09:40.710+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-1] [0;39m[36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Initializing Servlet 'dispatcherServlet'
 [2m2025-07-07T22:09:40.711+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-1] [0;39m[36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Completed initialization in 0 ms
 [2m2025-07-07T22:09:43.067+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-9] [0;39m[36mo.springdoc.api.AbstractOpenApiResource [0;39m [2m:[0;39m Init duration for springdoc-openapi is: 173 ms
-[2m2025-07-07T22:09:47.367+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-6] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Getting all records. Count: 0
-[2m2025-07-07T22:09:47.563+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [io-8080-exec-10] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Creating new record with ID: mismatch-test
-[2m2025-07-07T22:09:47.563+08:00[0;39m [33m WARN[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [io-8080-exec-10] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Validation failed: Record ID 'mismatch-test' does not match file name 'different-name.mp4'
-[2m2025-07-07T22:09:55.277+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-1] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Creating new record with ID: nonexistent-file.mp4
-[2m2025-07-07T22:09:55.277+08:00[0;39m [33m WARN[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-1] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Validation failed: File 'nonexistent-file.mp4' not found in uploads directory
-[2m2025-07-07T22:10:02.378+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-2] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Creating new record with ID: test-new-endpoint.txt
-[2m2025-07-07T22:10:02.378+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-2] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Record created successfully: test-new-endpoint.txt
-[2m2025-07-07T22:10:09.574+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-6] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Creating new record with ID: test-new-endpoint.txt
-[2m2025-07-07T22:10:09.574+08:00[0;39m [33m WARN[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-6] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Validation failed: Record with ID 'test-new-endpoint.txt' already exists
-[2m2025-07-07T22:10:16.022+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-8] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Getting all records. Count: 1
-[2m2025-07-07T22:10:25.055+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-3] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Creating new record with ID: The Kid LAROI, Justin Bieber - STAY (Official Video).mp4
+[2m2025-07-07T22:09:47.367+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-Exception in thread "Thread-3" org.gradle.api.UncheckedIOException: java.io.IOException: Input/output error
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckeException in thread "Thread-3" org.gradle.api.UncheckedIOException: java.io.IOException: Input/output error
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:63)
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:42)
+	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:99)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1095)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:619)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
+Caused by: java.io.IOException: Input/output error
+	at java.base/java.io.FileInputStream.readBytes(Native Method)
+	at java.base/java.io.FileInputStream.read(FileInputStream.java:294)
+	at java.base/java.lang.System$In.read(System.java:1849)
+	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:328)
+	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:388)
+	at java.base/sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:279)
+	at java.base/sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:322)
+	at java.base/sun.nio.cs.StreamDecoder.read(StreamDecoder.java:186)
+	at java.base/java.io.InputStreamReader.read(InputStreamReader.java:175)
+	at java.base/java.io.BufferedReader.read1(BufferedReader.java:215)
+	at java.base/java.io.BufferedReader.read(BufferedReader.java:291)
+	at java.base/java.io.Reader.read(Reader.java:366)
+	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:97)
+	... 3 more
+.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:328)
+	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:388)
+	at java.base/sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:279)
+	at java.base/sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:322)
+	at java.base/sun.nio.cs.StreamDecoder.read(StreamDecoder.java:186)
+	at java.base/java.io.InputStreamReader.read(InputStreamReader.java:175)
+	at java.base/java.io.BufferedReader.read1(BufferedReader.java:215)
+	at java.base/java.io.BufferedReader.read(BufferedReader.java:291)
+	at java.base/java.io.Reader.read(Reader.java:366)
+	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:97)
+	... 3 more
+).mp4
 [2m2025-07-07T22:10:25.056+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-3] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Record created successfully: The Kid LAROI, Justin Bieber - STAY (Official Video).mp4
 
 > Task :bootRun FAILED
