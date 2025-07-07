@@ -1,0 +1,43 @@
+# Build outputs
+build/
+target/
+*.jar
+*.war
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Logs
+*.log
+logs/
+
+# Test files
+.gradle/test/
+
+# Local environment
+.env
+.env.local
+
+# Documentation
+README.md
+HELP.md
+
+# Records directory (will be mounted as volume)
+records/

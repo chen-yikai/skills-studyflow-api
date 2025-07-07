@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  skills-studyflow-api:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount records directory to persist uploaded files
+      - ./records:/app/records
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xmx512m -Xms256m
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/records/files"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
