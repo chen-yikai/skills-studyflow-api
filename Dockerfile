@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy gradle files for dependency caching
 COPY gradle/ gradle/
-COPY gradlew gradlew.bat gradle.properties settings.gradle.kts build.gradle.kts ./
+COPY gradlew gradlew.bat settings.gradle.kts build.gradle.kts ./
 
 # Make gradlew executable
 RUN chmod +x gradlew
