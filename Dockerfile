@@ -11,10 +11,13 @@ COPY gradlew gradlew.bat settings.gradle.kts build.gradle.kts ./
 # Make gradlew executable
 RUN chmod +x gradlew
 
-# Download dependencies (this layer will be cached unless build files change)
-RUN ./gradlew dependencies --no-daemon
+# Create a dummy source structure and build to cache dependencies
+RUN mkdir -p src/main/kotlin src/main/resources src/test/kotlin
+RUN echo 'fun main() {}' > src/main/kotlin/Main.kt
+RUN ./gradlew build --no-daemon -x test || true
+RUN rm -rf src/
 
-# Copy source code
+# Copy actual source code
 COPY src/ src/
 
 # Build the application
