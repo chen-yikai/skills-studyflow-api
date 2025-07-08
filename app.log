@@ -1,13 +1,11 @@
-To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
-Daemon will be stopped at the end of the build 
 > Task :checkKotlinGradlePluginConfigurationErrors
-> Task :compileKotlin UP-TO-DATE
-> Task :compileJava NO-SOURCE
 > Task :processResources UP-TO-DATE
+> Task :compileKotlin
+> Task :compileJava NO-SOURCE
 > Task :classes UP-TO-DATE
-> Task :resolveMainClassName UP-TO-DATE
+> Task :resolveMainClassName
 
-> Task :bootRun
+> Task :bootRun FAILED
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -18,58 +16,55 @@ Daemon will be stopped at the end of the build
 
 [32m :: Spring Boot :: [39m              [2m (v3.5.3)[0;39m
 
-[2m2025-07-07T22:09:27.901+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36md.e.s.SkillsStudyflowApiApplicationKt   [0;39m [2m:[0;39m Starting SkillsStudyflowApiApplicationKt using Java 17.0.15 with PID 83969 (/Users/elias/projects/skills-studyflow-api/build/classes/kotlin/main started by elias in /Users/elias/projects/skills-studyflow-api)
-[2m2025-07-07T22:09:27.901+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36md.e.s.SkillsStudyflowApiApplicationKt   [0;39m [2m:[0;39m No active profile set, falling back to 1 default profile: "default"
-[2m2025-07-07T22:09:28.178+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat initialized with port 8080 (http)
-[2m2025-07-07T22:09:28.182+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.apache.catalina.core.StandardService  [0;39m [2m:[0;39m Starting service [Tomcat]
-[2m2025-07-07T22:09:28.182+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.apache.catalina.core.StandardEngine   [0;39m [2m:[0;39m Starting Servlet engine: [Apache Tomcat/10.1.42]
-[2m2025-07-07T22:09:28.196+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m:[0;39m Initializing Spring embedded WebApplicationContext
-[2m2025-07-07T22:09:28.196+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mw.s.c.ServletWebServerApplicationContext[0;39m [2m:[0;39m Root WebApplicationContext: initialization completed in 281 ms
-[2m2025-07-07T22:09:28.255+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.s.v.b.OptionalValidatorFactoryBean    [0;39m [2m:[0;39m Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
-[2m2025-07-07T22:09:28.349+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat started on port 8080 (http) with context path '/'
-[2m2025-07-07T22:09:28.353+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36md.e.s.SkillsStudyflowApiApplicationKt   [0;39m [2m:[0;39m Started SkillsStudyflowApiApplicationKt in 0.565 seconds (process running for 0.645)
-[2m2025-07-07T22:09:40.710+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-1] [0;39m[36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m:[0;39m Initializing Spring DispatcherServlet 'dispatcherServlet'
-[2m2025-07-07T22:09:40.710+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-1] [0;39m[36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Initializing Servlet 'dispatcherServlet'
-[2m2025-07-07T22:09:40.711+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-1] [0;39m[36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Completed initialization in 0 ms
-[2m2025-07-07T22:09:43.067+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-9] [0;39m[36mo.springdoc.api.AbstractOpenApiResource [0;39m [2m:[0;39m Init duration for springdoc-openapi is: 173 ms
-[2m2025-07-07T22:09:47.367+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-Exception in thread "Thread-3" org.gradle.api.UncheckedIOException: java.io.IOException: Input/output error
-	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckeException in thread "Thread-3" org.gradle.api.UncheckedIOException: java.io.IOException: Input/output error
-	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:63)
-	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:42)
-	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:99)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1095)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:619)
-	at java.base/java.lang.Thread.run(Thread.java:1447)
-Caused by: java.io.IOException: Input/output error
-	at java.base/java.io.FileInputStream.readBytes(Native Method)
-	at java.base/java.io.FileInputStream.read(FileInputStream.java:294)
-	at java.base/java.lang.System$In.read(System.java:1849)
-	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:328)
-	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:388)
-	at java.base/sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:279)
-	at java.base/sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:322)
-	at java.base/sun.nio.cs.StreamDecoder.read(StreamDecoder.java:186)
-	at java.base/java.io.InputStreamReader.read(InputStreamReader.java:175)
-	at java.base/java.io.BufferedReader.read1(BufferedReader.java:215)
-	at java.base/java.io.BufferedReader.read(BufferedReader.java:291)
-	at java.base/java.io.Reader.read(Reader.java:366)
-	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:97)
-	... 3 more
-.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:328)
-	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:388)
-	at java.base/sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:279)
-	at java.base/sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:322)
-	at java.base/sun.nio.cs.StreamDecoder.read(StreamDecoder.java:186)
-	at java.base/java.io.InputStreamReader.read(InputStreamReader.java:175)
-	at java.base/java.io.BufferedReader.read1(BufferedReader.java:215)
-	at java.base/java.io.BufferedReader.read(BufferedReader.java:291)
-	at java.base/java.io.Reader.read(Reader.java:366)
-	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:97)
-	... 3 more
-).mp4
-[2m2025-07-07T22:10:25.056+08:00[0;39m [32m INFO[0;39m [35m83969[0;39m [2m--- [skills-studyflow-api] [nio-8080-exec-3] [0;39m[36md.e.s.RecordsController                 [0;39m [2m:[0;39m Record created successfully: The Kid LAROI, Justin Bieber - STAY (Official Video).mp4
+[2m2025-07-08T04:12:06.298+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36md.e.s.SkillsStudyflowApiApplicationKt   [0;39m [2m:[0;39m Starting SkillsStudyflowApiApplicationKt using Java 17.0.15 with PID 98919 (/Users/elias/projects/skills-studyflow-api/build/classes/kotlin/main started by elias in /Users/elias/projects/skills-studyflow-api)
+[2m2025-07-08T04:12:06.299+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36md.e.s.SkillsStudyflowApiApplicationKt   [0;39m [2m:[0;39m No active profile set, falling back to 1 default profile: "default"
+[2m2025-07-08T04:12:06.545+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[2m2025-07-08T04:12:06.560+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Finished Spring Data repository scanning in 12 ms. Found 1 JPA repository interface.
+[2m2025-07-08T04:12:06.695+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat initialized with port 8080 (http)
+[2m2025-07-08T04:12:06.701+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.apache.catalina.core.StandardService  [0;39m [2m:[0;39m Starting service [Tomcat]
+[2m2025-07-08T04:12:06.701+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.apache.catalina.core.StandardEngine   [0;39m [2m:[0;39m Starting Servlet engine: [Apache Tomcat/10.1.42]
+[2m2025-07-08T04:12:06.722+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m:[0;39m Initializing Spring embedded WebApplicationContext
+[2m2025-07-08T04:12:06.723+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mw.s.c.ServletWebServerApplicationContext[0;39m [2m:[0;39m Root WebApplicationContext: initialization completed in 409 ms
+[2m2025-07-08T04:12:06.775+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.hibernate.jpa.internal.util.LogHelper [0;39m [2m:[0;39m HHH000204: Processing PersistenceUnitInfo [name: default]
+[2m2025-07-08T04:12:06.792+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36morg.hibernate.Version                   [0;39m [2m:[0;39m HHH000412: Hibernate ORM core version 6.6.18.Final
+[2m2025-07-08T04:12:06.801+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.h.c.internal.RegionFactoryInitiator   [0;39m [2m:[0;39m HHH000026: Second-level cache disabled
+[2m2025-07-08T04:12:06.881+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.s.o.j.p.SpringPersistenceUnitInfo     [0;39m [2m:[0;39m No LoadTimeWeaver setup: ignoring JPA class transformer
+[2m2025-07-08T04:12:06.890+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m:[0;39m HikariPool-1 - Starting...
+[2m2025-07-08T04:12:07.067+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mcom.zaxxer.hikari.pool.HikariPool       [0;39m [2m:[0;39m HikariPool-1 - Added connection org.sqlite.jdbc4.JDBC4Connection@27d73d22
+[2m2025-07-08T04:12:07.067+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m:[0;39m HikariPool-1 - Start completed.
+[2m2025-07-08T04:12:07.085+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36morg.hibernate.orm.connections.pooling   [0;39m [2m:[0;39m HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 3.44.1
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+[2m2025-07-08T04:12:07.389+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.h.e.t.j.p.i.JtaPlatformInitiator      [0;39m [2m:[0;39m HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+[2m2025-07-08T04:12:07.399+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m:[0;39m Initialized JPA EntityManagerFactory for persistence unit 'default'
+[2m2025-07-08T04:12:07.554+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.s.d.j.r.query.QueryEnhancerFactory    [0;39m [2m:[0;39m Hibernate is in classpath; If applicable, HQL parser will be used.
+[2m2025-07-08T04:12:07.737+08:00[0;39m [33m WARN[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mJpaBaseConfiguration$JpaWebConfiguration[0;39m [2m:[0;39m spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[2m2025-07-08T04:12:07.857+08:00[0;39m [33m WARN[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mConfigServletWebServerApplicationContext[0;39m [2m:[0;39m Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+[2m2025-07-08T04:12:07.857+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m:[0;39m Closing JPA EntityManagerFactory for persistence unit 'default'
+[2m2025-07-08T04:12:07.858+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m:[0;39m HikariPool-1 - Shutdown initiated...
+[2m2025-07-08T04:12:07.858+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m:[0;39m HikariPool-1 - Shutdown completed.
+[2m2025-07-08T04:12:07.863+08:00[0;39m [32m INFO[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36m.s.b.a.l.ConditionEvaluationReportLogger[0;39m [2m:[0;39m 
 
-> Task :bootRun FAILED
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+[2m2025-07-08T04:12:07.868+08:00[0;39m [31mERROR[0;39m [35m98919[0;39m [2m--- [skills-studyflow-api] [           main] [0;39m[36mo.s.b.d.LoggingFailureAnalysisReporter  [0;39m [2m:[0;39m 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
 
 [Incubating] Problems report is available at: file:///Users/elias/projects/skills-studyflow-api/build/reports/problems/problems-report.html
 
@@ -77,7 +72,7 @@ FAILURE: Build failed with an exception.
 
 * What went wrong:
 Execution failed for task ':bootRun'.
-> Process 'command '/Users/elias/Library/Java/JavaVirtualMachines/ms-17.0.15/Contents/Home/bin/java'' finished with non-zero exit value 137
+> Process 'command '/Users/elias/Library/Java/JavaVirtualMachines/ms-17.0.15/Contents/Home/bin/java'' finished with non-zero exit value 1
 
 * Try:
 > Run with --stacktrace option to get the stack trace.
@@ -91,5 +86,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.14.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD FAILED in 4m 48s
-5 actionable tasks: 2 executed, 3 up-to-date
+BUILD FAILED in 3s
+5 actionable tasks: 4 executed, 1 up-to-date

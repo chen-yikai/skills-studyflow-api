@@ -1,5 +1,7 @@
 package dev.eliaschen.skillsstudyflowapi
 
+import dev.eliaschen.skillsstudyflowapi.service.RecordService
+import dev.eliaschen.skillsstudyflowapi.service.Record
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -38,26 +40,12 @@ data class FileInfo(
     val size: Long
 )
 
-data class Note(
-    val time: Int,
-    val data: String
-)
-
-data class Record(
-    val id: String,
-    val name: String,
-    val file: String,
-    val note: List<Note>,
-    val tags:List<String>
-)
-
 @RestController
 @RequestMapping("/records")
 @Tag(name = "Records", description = "File upload and download API")
-class RecordsController {
+class RecordsController(private val recordService: RecordService) {
     private val logger = LoggerFactory.getLogger(RecordsController::class.java)
     private val uploadDir: Path = Paths.get("records").toAbsolutePath()
-    private val records = mutableListOf<Record>()
 
     init {
         Files.createDirectories(uploadDir)
@@ -67,6 +55,7 @@ class RecordsController {
     @Operation(summary = "Get all records", description = "Returns a list of all records")
     @ApiResponse(responseCode = "200", description = "Records retrieved successfully")
     fun getRecords(): ResponseEntity<List<Record>> {
+        val records = recordService.getAllRecords()
         logger.info("Getting all records. Count: ${records.size}")
         return ResponseEntity.ok(records)
     }
@@ -88,32 +77,29 @@ class RecordsController {
     fun createRecord(@RequestBody record: Record): ResponseEntity<Map<String, String>> {
         logger.info("Creating new record with ID: ${record.id}")
 
-        if (record.id != record.file) {
-            logger.warn("Validation failed: Record ID '${record.id}' does not match file name '${record.file}'")
-            return ResponseEntity.badRequest().body(
-                mapOf("message" to "Record ID must match the file name. ID: '${record.id}', File: '${record.file}'")
-            )
-        }
-
-        val filePath = uploadDir.resolve(record.file)
-        if (!Files.exists(filePath)) {
-            logger.warn("Validation failed: File '${record.file}' not found in uploads directory")
-            return ResponseEntity.badRequest().body(
-                mapOf("message" to "File '${record.file}' must be uploaded before creating a record. Please upload the file first.")
-            )
-        }
-
-        if (records.any { it.id == record.id }) {
+        // Check if record already exists
+        if (recordService.recordExists(record.id)) {
             logger.warn("Validation failed: Record with ID '${record.id}' already exists")
             return ResponseEntity.badRequest().body(
                 mapOf("message" to "Record with ID '${record.id}' already exists")
             )
         }
 
+        // Optional validation: Check if the uploaded file exists (only if file field is not empty)
+        if (record.file.isNotEmpty()) {
+            val filePath = uploadDir.resolve(record.file)
+            if (!Files.exists(filePath)) {
+                logger.warn("Validation failed: File '${record.file}' not found in uploads directory")
+                return ResponseEntity.badRequest().body(
+                    mapOf("message" to "File '${record.file}' not found. Please upload the file first or leave file field empty.")
+                )
+            }
+        }
+
         try {
-            records.add(record)
-            logger.info("Record created successfully: ${record.id}")
-            return ResponseEntity.status(201).body(mapOf("message" to "Record created successfully", "id" to record.id))
+            val createdRecord = recordService.createRecord(record)
+            logger.info("Record created successfully: ${createdRecord.id}")
+            return ResponseEntity.status(201).body(mapOf("message" to "Record created successfully", "id" to createdRecord.id))
         } catch (ex: Exception) {
             logger.error("Error creating record: ${ex.message}")
             return ResponseEntity.badRequest().body(mapOf("message" to "Error creating record: ${ex.message}"))
@@ -133,20 +119,23 @@ class RecordsController {
     fun updateRecord(@PathVariable id: String, @RequestBody updatedRecord: Record): ResponseEntity<Map<String, String>> {
         logger.info("Updating record with ID: $id")
 
-        val existingRecordIndex = records.indexOfFirst { it.id == id }
-        if (existingRecordIndex == -1) {
-            logger.warn("Update failed: Record with ID '$id' not found")
-            return ResponseEntity.status(404).body(
-                mapOf("message" to "Record not found")
-            )
+        try {
+            val recordToUpdate = updatedRecord.copy(id = id)
+            val result = recordService.updateRecord(id, recordToUpdate)
+            
+            if (result != null) {
+                logger.info("Record with ID '$id' updated successfully")
+                return ResponseEntity.ok(mapOf("message" to "Record updated successfully", "id" to id))
+            } else {
+                logger.warn("Update failed: Record with ID '$id' not found")
+                return ResponseEntity.status(404).body(
+                    mapOf("message" to "Record not found")
+                )
+            }
+        } catch (ex: Exception) {
+            logger.error("Error updating record: ${ex.message}")
+            return ResponseEntity.badRequest().body(mapOf("message" to "Error updating record: ${ex.message}"))
         }
-
-        // Ensure the updated record maintains the same ID
-        val recordToUpdate = updatedRecord.copy(id = id)
-        records[existingRecordIndex] = recordToUpdate
-
-        logger.info("Record with ID '$id' updated successfully")
-        return ResponseEntity.ok(mapOf("message" to "Record updated successfully", "id" to id))
     }
 
     @DeleteMapping("/{id}")
@@ -160,17 +149,21 @@ class RecordsController {
     fun deleteRecord(@PathVariable id: String): ResponseEntity<Map<String, String>> {
         logger.info("Deleting record with ID: $id")
 
-        val existingRecordIndex = records.indexOfFirst { it.id == id }
-        if (existingRecordIndex == -1) {
-            logger.warn("Delete failed: Record with ID '$id' not found")
-            return ResponseEntity.status(404).body(
-                mapOf("message" to "Record not found")
-            )
+        try {
+            val deleted = recordService.deleteRecord(id)
+            if (deleted) {
+                logger.info("Record with ID '$id' deleted successfully")
+                return ResponseEntity.ok(mapOf("message" to "Record deleted successfully", "id" to id))
+            } else {
+                logger.warn("Delete failed: Record with ID '$id' not found")
+                return ResponseEntity.status(404).body(
+                    mapOf("message" to "Record not found")
+                )
+            }
+        } catch (ex: Exception) {
+            logger.error("Error deleting record: ${ex.message}")
+            return ResponseEntity.badRequest().body(mapOf("message" to "Error deleting record: ${ex.message}"))
         }
-
-        records.removeAt(existingRecordIndex)
-        logger.info("Record with ID '$id' deleted successfully")
-        return ResponseEntity.ok(mapOf("message" to "Record deleted successfully", "id" to id))
     }
 
     @GetMapping("/files")
