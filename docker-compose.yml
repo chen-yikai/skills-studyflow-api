@@ -8,12 +8,15 @@ services:
     volumes:
       # Mount records directory to persist uploaded files
       - ./records:/app/records
+      # Mount screenshots directory to persist uploaded screenshots
+      - ./screenshots:/app/screenshots
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - JAVA_OPTS=-Xmx512m -Xms256m
+      - JWT_SECRET=myVerySecretKeyForDockerDeployment123456789
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/records/files"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/signin"]
       interval: 30s
       timeout: 10s
       retries: 3

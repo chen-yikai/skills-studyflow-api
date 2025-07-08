@@ -39,5 +39,6 @@ logs/
 README.md
 HELP.md
 
-# Records directory (will be mounted as volume)
+# Records and screenshots directories (will be mounted as volumes)
 records/
+screenshots/

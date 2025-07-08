@@ -13,6 +13,8 @@ import io.jsonwebtoken.security.Keys
 import java.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetails
 import java.nio.charset.StandardCharsets
 
 
@@ -122,17 +124,29 @@ class AuthController {
         summary = "Verify access token",
         description = "Verifies if an access token is valid"
     )
-    fun verifyToken(@RequestHeader("Authorization") authHeader: String): ResponseEntity<Any> {
+    fun verifyToken(): ResponseEntity<Any> {
         try {
-            val token = authHeader.removePrefix("Bearer ")
-            val userInfo = verifyJwtToken(token)
-
-            return ResponseEntity.ok(
-                mapOf(
-                    "valid" to true,
-                    "user" to userInfo
+            val authentication = SecurityContextHolder.getContext().authentication
+            if (authentication != null && authentication.isAuthenticated) {
+                val userDetails = authentication.principal as UserDetails
+                
+                return ResponseEntity.ok(
+                    mapOf(
+                        "valid" to true,
+                        "user" to mapOf(
+                            "username" to userDetails.username,
+                            "authenticated" to true
+                        )
+                    )
                 )
-            )
+            } else {
+                return ResponseEntity.status(401).body(
+                    mapOf(
+                        "valid" to false,
+                        "message" to "No valid authentication found"
+                    )
+                )
+            }
         } catch (e: Exception) {
             return ResponseEntity.status(401).body(
                 mapOf(
@@ -141,6 +155,19 @@ class AuthController {
                 )
             )
         }
+    }
+
+    @PostMapping("/signout")
+    @Operation(
+        summary = "Sign out user",
+        description = "Signs out the user by removing session data (if any)"
+    )
+    @ApiResponse(responseCode = "200", description = "Sign out successful")
+    fun signOut(): ResponseEntity<Map<String, String>> {
+        // Clear security context
+        SecurityContextHolder.clearContext()
+        logger.info("User signed out.")
+        return ResponseEntity.ok(mapOf("message" to "Sign out successful"))
     }
 
     private fun generateJwtToken(userInfo: UserInfo): String {

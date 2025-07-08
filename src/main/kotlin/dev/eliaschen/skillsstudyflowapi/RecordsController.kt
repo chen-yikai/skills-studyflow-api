@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
 import org.springframework.http.HttpHeaders
@@ -44,6 +45,8 @@ data class FileInfo(
 @RestController
 @RequestMapping("/records")
 @Tag(name = "Records", description = "File upload and download API")
+@SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "key")
 class RecordsController(private val recordService: RecordService) {
     private val logger = LoggerFactory.getLogger(RecordsController::class.java)
     private val uploadDir: Path = Paths.get("records").toAbsolutePath()

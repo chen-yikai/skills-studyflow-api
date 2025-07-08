@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StudyFlow Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .error { color: red; margin-top: 10px; }
+        .success { color: green; margin-top: 10px; background-color: #f8f9fa; padding: 15px; border-radius: 4px; word-break: break-all; }
+        .demo-info { background-color: #f8f9fa; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }
+        .token-display { margin-top: 20px; padding: 15px; background-color: #e9ecef; border-radius: 4px; }
+        .token-value { font-family: monospace; font-size: 12px; word-break: break-all; background-color: white; padding: 10px; border-radius: 3px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h2>StudyFlow Login</h2>
+    <div class="demo-info">
+        <strong>Demo Users:</strong><br>
+        Username: demo, Password: password123<br>
+        Username: user1, Password: pass123<br>
+        Username: admin, Password: admin123
+    </div>
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">Login</button>
+        <div id="error" class="error"></div>
+        <div id="success" class="success" style="display: none;"></div>
+    </form>
+    
+    <script>
+        // Get redirect URI from URL parameters or use default
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectUri = urlParams.get('redirect_uri') || 'studyflow://oauth';
+        
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            
+            // Clear previous messages
+            errorDiv.textContent = '';
+            successDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('/auth/authenticate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Success - redirect to mobile app with access token
+                    const redirectUrl = redirectUri + '?' + 
+                        'access_token=' + encodeURIComponent(result.accessToken) + 
+                        '&token_type=' + encodeURIComponent(result.tokenType) + 
+                        '&username=' + encodeURIComponent(result.username);
+                    
+                    // Show success message and redirect
+                    successDiv.innerHTML = 
+                        '<h3>Login Successful!</h3>' +
+                        '<p>Redirecting to StudyFlow app...</p>' +
+                        '<p style="font-size: 12px; color: #666; margin-top: 15px;">' +
+                            'If the app doesn\'t open automatically, click the link below:' +
+                        '</p>' +
+                        '<p><a href="' + redirectUrl + '">Open StudyFlow App</a></p>';
+                    successDiv.style.display = 'block';
+                    
+                    // Hide the form
+                    document.getElementById('loginForm').style.display = 'none';
+                    
+                    // Attempt to redirect to the mobile app
+                    setTimeout(function() {
+                        window.location.href = redirectUrl;
+                    }, 1000); // Wait 1 second before redirecting
+                    
+                } else {
+                    errorDiv.textContent = result.message || 'Login failed';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Network error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

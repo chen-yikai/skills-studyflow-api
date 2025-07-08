@@ -20,17 +20,9 @@ RUN rm -rf src/
 # Copy actual source code
 COPY src/ src/
 
-# Build the application
 RUN ./gradlew build --no-daemon -x test
-
-# Create directories for uploaded files
-RUN mkdir -p /app/records
-
-# Expose port 8080
+RUN mkdir -p /app/records /app/screenshots
 EXPOSE 8080
-
-# Set environment variables
 ENV SPRING_PROFILES_ACTIVE=docker
-
-# Run the application
-CMD ["java", "-jar", "build/libs/skills-studyflow-api-0.0.1-SNAPSHOT.jar"]
+ENV JAVA_OPTS="-Xmx512m -Xms256m"
+CMD ["sh", "-c", "java $JAVA_OPTS -jar build/libs/skills-studyflow-api-0.0.1-SNAPSHOT.jar"]
