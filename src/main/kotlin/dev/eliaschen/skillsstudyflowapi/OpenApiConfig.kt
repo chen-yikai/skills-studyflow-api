@@ -14,7 +14,7 @@ class OpenApiConfig {
     @Bean
     fun openAPI(): OpenAPI {
         val bearerSchemeName = "bearerAuth"
-        val apiKeySchemeName = "key"
+        val apiKeySchemeName = "apiKey"
         
         return OpenAPI()
             .info(
@@ -23,18 +23,12 @@ class OpenApiConfig {
                     .description("API for managing study records with authentication")
                     .version("1.0.0")
             )
-            .addSecurityItem(
-                SecurityRequirement().addList(bearerSchemeName)
-            )
-            .addSecurityItem(
-                SecurityRequirement().addList(apiKeySchemeName)
-            )
             .components(
                 Components()
                     .addSecuritySchemes(
                         bearerSchemeName,
                         SecurityScheme()
-                            .name(bearerSchemeName)
+                            .name("Authorization")
                             .type(SecurityScheme.Type.HTTP)
                             .scheme("bearer")
                             .bearerFormat("JWT")

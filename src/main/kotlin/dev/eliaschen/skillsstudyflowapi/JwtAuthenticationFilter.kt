@@ -24,6 +24,15 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
 
     @Value("\${app.auth.jwt.secret}")
     private lateinit var jwtSecret: String
+    
+    private var isInitialized = false
+    
+    private fun ensureInitialized() {
+        if (!isInitialized) {
+            logger.info("JWT Secret initialized with length: ${jwtSecret.length}")
+            isInitialized = true
+        }
+    }
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
@@ -32,11 +41,19 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
         filterChain: FilterChain
     ) {
         try {
+            ensureInitialized()
+            
             val authHeader = request.getHeader("Authorization")
             val apiKeyHeader = request.getHeader("key")
             
+            logger.debug("Processing authentication for: ${request.requestURI}")
+            logger.debug("Authorization header present: ${authHeader != null}")
+            logger.debug("API key header present: ${apiKeyHeader != null}")
+            
             // Check for API key authentication first (for easy testing)
             if (apiKeyHeader != null && apiKeyHeader == "key") {
+                logger.info("Processing API key authentication for ${request.requestURI}")
+                
                 // Create a test user for API key authentication
                 val userDetails: UserDetails = User.builder()
                     .username("test-user")
@@ -52,10 +69,12 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
                 authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
                 
                 SecurityContextHolder.getContext().authentication = authentication
-                logger.debug("API key authentication successful")
+                logger.info("API key authentication successful for user: test-user")
                 
             } else if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                logger.info("Processing JWT token authentication for ${request.requestURI}")
                 val token = authHeader.substring(7)
+                logger.debug("Token: ${token.take(10)}...")
                 
                 try {
                     val userInfo = verifyJwtToken(token)
@@ -78,12 +97,14 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
                     // Set authentication in security context
                     SecurityContextHolder.getContext().authentication = authentication
                     
-                    logger.debug("JWT token validated successfully for user: ${userInfo.username}")
+                    logger.info("JWT token validated successfully for user: ${userInfo.username}")
                     
                 } catch (e: Exception) {
-                    logger.warn("JWT token validation failed: ${e.message}")
+                    logger.error("JWT token validation failed for ${request.requestURI}: ${e.message}", e)
                     SecurityContextHolder.clearContext()
                 }
+            } else {
+                logger.debug("No valid authentication header found for ${request.requestURI}")
             }
             
         } catch (e: Exception) {
@@ -95,18 +116,26 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
     }
 
     private fun verifyJwtToken(token: String): UserInfo {
-        val key = Keys.hmacShaKeyFor(jwtSecret.toByteArray())
+        try {
+            logger.debug("Verifying JWT token with secret length: ${jwtSecret.length}")
+            val key = Keys.hmacShaKeyFor(jwtSecret.toByteArray())
 
-        val claims = Jwts.parser()
-            .verifyWith(key)
-            .build()
-            .parseSignedClaims(token)
-            .payload
+            val claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
 
-        return UserInfo(
-            id = claims.subject,
-            username = claims["username"] as String,
-            email = claims["email"] as String?
-        )
+            logger.debug("JWT claims: subject=${claims.subject}, username=${claims["username"]}")
+            
+            return UserInfo(
+                id = claims.subject ?: "unknown",
+                username = claims["username"] as? String ?: "unknown",
+                email = claims["email"] as? String
+            )
+        } catch (e: Exception) {
+            logger.error("JWT token verification failed: ${e.javaClass.simpleName} - ${e.message}")
+            throw e
+        }
     }
 }

@@ -1,5 +1,6 @@
 package dev.eliaschen.skillsstudyflowapi
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -10,6 +11,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.boot.web.servlet.FilterRegistrationBean
+import org.springframework.web.multipart.support.MultipartFilter
 
 @Configuration
 @EnableWebSecurity
@@ -17,6 +20,21 @@ class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val jwtAuthenticationEntryPoint: JwtAuthenticationEntryPoint
 ) {
+
+    @Value("\${app.cors.allowed-origins}")
+    private lateinit var allowedOrigins: String
+
+    @Value("\${app.cors.allowed-methods}")
+    private lateinit var allowedMethods: String
+
+    @Value("\${app.cors.allowed-headers}")
+    private lateinit var allowedHeaders: String
+
+    @Value("\${app.cors.allow-credentials}")
+    private lateinit var allowCredentials: String
+
+    @Value("\${app.cors.exposed-headers}")
+    private lateinit var exposedHeaders: String
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -55,14 +73,43 @@ class SecurityConfig(
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
-        configuration.allowedOriginPatterns = listOf("*")
-        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
-        configuration.allowedHeaders = listOf("*")
-        configuration.allowCredentials = true
-        configuration.exposedHeaders = listOf("Authorization")
+        
+        // Parse comma-separated origins
+        val origins = allowedOrigins.split(",").map { it.trim() }
+        configuration.allowedOrigins = origins
+        
+        // Parse comma-separated methods
+        val methods = allowedMethods.split(",").map { it.trim() }
+        configuration.allowedMethods = methods
+        
+        // Parse comma-separated headers
+        val headers = if (allowedHeaders == "*") {
+            listOf("*")
+        } else {
+            allowedHeaders.split(",").map { it.trim() }
+        }
+        configuration.allowedHeaders = headers
+        
+        // Set credentials
+        configuration.allowCredentials = allowCredentials.toBoolean()
+        
+        // Parse comma-separated exposed headers
+        val exposed = exposedHeaders.split(",").map { it.trim() }
+        configuration.exposedHeaders = exposed
+        
+        // Set max age for preflight requests (optional)
+        configuration.maxAge = 3600L
 
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", configuration)
         return source
+    }
+
+    @Bean
+    fun multipartFilter(): FilterRegistrationBean<MultipartFilter> {
+        val registration = FilterRegistrationBean<MultipartFilter>()
+        registration.filter = MultipartFilter()
+        registration.order = -100 // Before security filters
+        return registration
     }
 }

@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.security.core.context.SecurityContextHolder
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -46,7 +47,7 @@ data class FileInfo(
 @RequestMapping("/records")
 @Tag(name = "Records", description = "File upload and download API")
 @SecurityRequirement(name = "bearerAuth")
-@SecurityRequirement(name = "key")
+@SecurityRequirement(name = "apiKey")
 class RecordsController(private val recordService: RecordService) {
     private val logger = LoggerFactory.getLogger(RecordsController::class.java)
     private val uploadDir: Path = Paths.get("records").toAbsolutePath()
@@ -54,6 +55,7 @@ class RecordsController(private val recordService: RecordService) {
 
     init {
         Files.createDirectories(uploadDir)
+        Files.createDirectories(screenshotDir)
     }
 
     @GetMapping
@@ -233,6 +235,14 @@ class RecordsController(private val recordService: RecordService) {
         @Parameter(description = "Screenshot to upload", content = [Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)])
         @RequestParam("screenshot") screenshot: MultipartFile
     ): ResponseEntity<Map<String, String>> {
+        logger.info("Screenshot upload endpoint called")
+        
+        // Log authentication info
+        val authentication = SecurityContextHolder.getContext().authentication
+        logger.info("Authentication present: ${authentication != null}")
+        logger.info("Authentication authenticated: ${authentication?.isAuthenticated}")
+        logger.info("Authentication principal: ${authentication?.principal}")
+        
         logger.info("Upload request received for screenshot: ${screenshot.originalFilename}, Size: ${screenshot.size} bytes")
 
         if (screenshot.isEmpty) {
