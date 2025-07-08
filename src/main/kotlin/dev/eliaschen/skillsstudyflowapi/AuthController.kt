@@ -6,11 +6,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import java.util.*
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.ClassPathResource
+import java.nio.charset.StandardCharsets
 
 
 data class UserInfo(
@@ -31,34 +34,41 @@ class AuthController {
     private lateinit var jwtSecret: String
 
     @Value("\${app.auth.jwt.expiration}")
-    private var jwtExpiration: Long = 86400000 // 24 hours
+    private var jwtExpiration: Long = 86400000
 
-    // In-memory storage for demo purposes - use database in production
     private val users = mutableMapOf(
-        "demo" to "password123",
-        "user1" to "pass123",
-        "admin" to "admin123"
+        "elias" to "meow",
+        "yang" to "password",
+        "scplay" to "q123456",
+        "user" to "password123"
     )
 
 
-    @GetMapping("/signin")
+    @GetMapping("/signin", produces = [MediaType.TEXT_HTML_VALUE])
     @Operation(
         summary = "Show sign in page",
-        description = "Redirects to the login form HTML page"
+        description = "Serves the login form HTML page directly"
     )
-    @ApiResponse(responseCode = "302", description = "Redirect to login page")
+    @ApiResponse(responseCode = "200", description = "Login page served successfully")
     fun showSignInPage(
         @RequestParam(required = false, defaultValue = "studyflow://oauth") redirectUri: String
-    ): ResponseEntity<Void> {
-        val redirectUrl = if (redirectUri != "studyflow://oauth") {
-            "/login.html?redirect_uri=${java.net.URLEncoder.encode(redirectUri, "UTF-8")}"
-        } else {
-            "/login.html"
+    ): ResponseEntity<String> {
+        try {
+            // Read the HTML file from the classpath
+            val resource = ClassPathResource("templates/login.html")
+            val htmlContent = resource.inputStream.readBytes().toString(StandardCharsets.UTF_8)
+
+            // Replace the placeholder with the actual redirect URI
+            val processedHtml = htmlContent.replace("\$redirectUri", redirectUri)
+
+            return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_HTML)
+                .body(processedHtml)
+        } catch (e: Exception) {
+            logger.error("Error serving login page", e)
+            return ResponseEntity.status(500)
+                .body("<html><body><h1>Error loading login page</h1></body></html>")
         }
-        
-        return ResponseEntity.status(302)
-            .header("Location", redirectUrl)
-            .build()
     }
 
     @PostMapping("/authenticate")
@@ -105,18 +115,6 @@ class AuthController {
                 "username" to username
             )
         )
-    }
-
-    @PostMapping("/signout")
-    @Operation(
-        summary = "Sign out user",
-        description = "Signs out the user by removing session data (if any)"
-    )
-    @ApiResponse(responseCode = "200", description = "Sign out successful")
-    fun signOut(): ResponseEntity<Map<String, String>> {
-        // Clearing logic if needed
-        logger.info("User signed out.")
-        return ResponseEntity.ok(mapOf("message" to "Sign out successful"))
     }
 
     @GetMapping("/verify")
