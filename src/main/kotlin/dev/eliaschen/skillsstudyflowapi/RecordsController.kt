@@ -2,6 +2,7 @@ package dev.eliaschen.skillsstudyflowapi
 
 import dev.eliaschen.skillsstudyflowapi.service.RecordService
 import dev.eliaschen.skillsstudyflowapi.service.Record
+import dev.eliaschen.skillsstudyflowapi.service.RecordUpdateSchema
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -46,6 +47,7 @@ data class FileInfo(
 class RecordsController(private val recordService: RecordService) {
     private val logger = LoggerFactory.getLogger(RecordsController::class.java)
     private val uploadDir: Path = Paths.get("records").toAbsolutePath()
+    private val screenshotDir: Path = Paths.get("screenshots").toAbsolutePath()
 
     init {
         Files.createDirectories(uploadDir)
@@ -60,17 +62,40 @@ class RecordsController(private val recordService: RecordService) {
         return ResponseEntity.ok(records)
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Get a single record by ID", description = "Returns a specific record by its ID")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Record retrieved successfully"),
+            ApiResponse(responseCode = "404", description = "Record not found")
+        ]
+    )
+    fun getRecordById(@Parameter(description = "ID of the record to retrieve") @PathVariable id: String): ResponseEntity<Any> {
+        logger.info("Getting record with ID: $id")
+        
+        val record = recordService.getRecordById(id)
+        return if (record != null) {
+            logger.info("Record found: ${record.name}")
+            ResponseEntity.ok(record)
+        } else {
+            logger.warn("Record with ID '$id' not found")
+            ResponseEntity.status(404).body(
+                mapOf("message" to "Record with ID '$id' not found")
+            )
+        }
+    }
+
     @PostMapping
     @Operation(
         summary = "Create a new record",
-        description = "Creates a new record with the provided data. Note: record ID must match the file name, and the file must be uploaded first."
+        description = "Creates a new record with the provided data. The file field can reference any filename, whether uploaded or not."
     )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "201", description = "Record created successfully"),
             ApiResponse(
                 responseCode = "400",
-                description = "Invalid request data - ID/file mismatch, file not found, or duplicate record"
+                description = "Invalid request data - duplicate record or other validation errors"
             )
         ]
     )
@@ -85,16 +110,6 @@ class RecordsController(private val recordService: RecordService) {
             )
         }
 
-        // Optional validation: Check if the uploaded file exists (only if file field is not empty)
-        if (record.file.isNotEmpty()) {
-            val filePath = uploadDir.resolve(record.file)
-            if (!Files.exists(filePath)) {
-                logger.warn("Validation failed: File '${record.file}' not found in uploads directory")
-                return ResponseEntity.badRequest().body(
-                    mapOf("message" to "File '${record.file}' not found. Please upload the file first or leave file field empty.")
-                )
-            }
-        }
 
         try {
             val createdRecord = recordService.createRecord(record)
@@ -116,11 +131,19 @@ class RecordsController(private val recordService: RecordService) {
             )
         ]
     )
-    fun updateRecord(@PathVariable id: String, @RequestBody updatedRecord: Record): ResponseEntity<Map<String, String>> {
+    fun updateRecord(@PathVariable id: String, @RequestBody updateData: RecordUpdateSchema): ResponseEntity<Map<String, String>> {
         logger.info("Updating record with ID: $id")
 
         try {
-            val recordToUpdate = updatedRecord.copy(id = id)
+            val recordToUpdate = Record(
+                id = id,
+                name = updateData.name,
+                file = updateData.file,
+                date = updateData.date,
+                note = updateData.note,
+                tags = updateData.tags,
+                screenshots = updateData.screenshots
+            )
             val result = recordService.updateRecord(id, recordToUpdate)
             
             if (result != null) {
@@ -201,6 +224,33 @@ class RecordsController(private val recordService: RecordService) {
         }
     }
 
+    @PostMapping("/screenshots/upload", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @Operation(summary = "Upload a screenshot", description = "Uploads a screenshot to the server")
+    fun uploadScreenshot(
+        @Parameter(description = "Screenshot to upload", content = [Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)])
+        @RequestParam("screenshot") screenshot: MultipartFile
+    ): ResponseEntity<Map<String, String>> {
+        logger.info("Upload request received for screenshot: ${screenshot.originalFilename}, Size: ${screenshot.size} bytes")
+
+        if (screenshot.isEmpty) {
+            logger.warn("Upload failed: Screenshot is empty")
+            return ResponseEntity.badRequest().body(mapOf("message" to "Screenshot can't be empty!"))
+        }
+
+        try {
+            val fileName = screenshot.originalFilename ?: ""
+            val filePath = screenshotDir.resolve(fileName)
+            logger.info("Copying screenshot to: $filePath")
+            Files.createDirectories(screenshotDir)
+            Files.copy(screenshot.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
+            logger.info("Screenshot uploaded successfully: $fileName")
+            return ResponseEntity.ok(mapOf("message" to "Screenshot uploaded successfully", "filename" to fileName))
+        } catch (ex: Exception) {
+            logger.error("Error uploading screenshot: ${ex.message}")
+            return ResponseEntity.status(500).body(mapOf("message" to (ex.message ?: "Unknown error")))
+        }
+    }
+
     @DeleteMapping("/files/{filename}")
     @Operation(summary = "Delete a file", description = "Deletes a file from the server")
     @ApiResponses(
@@ -228,6 +278,72 @@ class RecordsController(private val recordService: RecordService) {
             logger.error("Error deleting file '$filename': ${ex.message}")
             return ResponseEntity.status(500).body(
                 mapOf("message" to "Error deleting file: ${ex.message}")
+            )
+        }
+    }
+
+    @GetMapping("/screenshots")
+    @Operation(summary = "List all uploaded screenshots", description = "Returns a list of all screenshots with their upload dates")
+    fun listScreenshots(): ResponseEntity<List<FileInfo>> {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            .withZone(ZoneId.systemDefault())
+
+        val screenshotList = Files.list(screenshotDir)
+            .filter { Files.isRegularFile(it) }
+            .map { filePath ->
+                val attrs = Files.readAttributes(filePath, BasicFileAttributes::class.java)
+                FileInfo(
+                    filename = filePath.fileName.toString(),
+                    uploadDate = formatter.format(attrs.creationTime().toInstant()),
+                    size = attrs.size()
+                )
+            }
+            .toList()
+        return ResponseEntity.ok().body(screenshotList)
+    }
+
+    @GetMapping("/screenshots/{filename}")
+    @Operation(summary = "Download a screenshot")
+    fun downloadScreenshot(@Parameter(description = "Name of the screenshot to download") @PathVariable filename: String): ResponseEntity<Resource> {
+        val filePath = screenshotDir.resolve(filename)
+        val resource: Resource = UrlResource(filePath.toUri())
+        return if (resource.exists()) {
+            ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${filename}\"")
+                .body(resource)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+    @DeleteMapping("/screenshots/{filename}")
+    @Operation(summary = "Delete a screenshot", description = "Deletes a screenshot from the server")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Screenshot deleted successfully"),
+            ApiResponse(responseCode = "404", description = "Screenshot not found")
+        ]
+    )
+    fun deleteScreenshot(@Parameter(description = "Name of the screenshot to delete") @PathVariable filename: String): ResponseEntity<Map<String, String>> {
+        logger.info("Deleting screenshot: $filename")
+
+        val filePath = screenshotDir.resolve(filename)
+        if (!Files.exists(filePath)) {
+            logger.warn("Delete failed: Screenshot '$filename' not found")
+            return ResponseEntity.status(404).body(
+                mapOf("message" to "Screenshot not found")
+            )
+        }
+
+        try {
+            Files.delete(filePath)
+            logger.info("Screenshot '$filename' deleted successfully")
+            return ResponseEntity.ok(mapOf("message" to "Screenshot deleted successfully", "filename" to filename))
+        } catch (ex: Exception) {
+            logger.error("Error deleting screenshot '$filename': ${ex.message}")
+            return ResponseEntity.status(500).body(
+                mapOf("message" to "Error deleting screenshot: ${ex.message}")
             )
         }
     }

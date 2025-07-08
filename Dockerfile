@@ -23,8 +23,8 @@ COPY src/ src/
 # Build the application
 RUN ./gradlew build --no-daemon -x test
 
-# Create directories for uploaded files and database
-RUN mkdir -p /app/records /app/data
+# Create directories for uploaded files
+RUN mkdir -p /app/records
 
 # Expose port 8080
 EXPOSE 8080
