@@ -4,6 +4,9 @@
     <title>StudyFlow Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
         body {
             font-family: Arial, sans-serif;
             max-width: 400px;
@@ -26,20 +29,25 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #e0b3ff;
+            color: #1f1f1f;
+            border: 1px solid #d3b3ff;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.2s, border-color 0.2s;
+            box-shadow: 0 2px 6px rgba(160, 116, 255, 0.3);
             cursor: pointer;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #b67dff;
         }
 
         .error {
@@ -63,6 +71,21 @@
             margin-bottom: 20px;
             font-size: 14px;
         }
+        .demo-info table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .demo-info th, .demo-info td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .demo-info th {
+            background-color: #eee;
+        }
 
         .token-display {
             margin-top: 20px;
@@ -80,24 +103,55 @@
             border-radius: 3px;
             margin-top: 10px;
         }
+
+        h2 {
+            font-size: 2em;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #d076ff, #8b49ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            display: block;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
-<h2>StudyFlow Login</h2>
+<h2><span class="gradient-text">StudyFlow Login</span></h2>
 <div class="demo-info">
-    <strong>Demo Users:</strong><br>
-    Username: demo, Password: password123<br>
-    Username: user1, Password: pass123<br>
-    Username: admin, Password: admin123
+    <label><strong>Demo Users:</strong></label>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Password</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>demo</td>
+                <td>password123</td>
+            </tr>
+            <tr>
+                <td>user1</td>
+                <td>pass123</td>
+            </tr>
+            <tr>
+                <td>admin</td>
+                <td>admin123</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 <form id="loginForm">
     <div class="form-group">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required>
     </div>
     <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
     </div>
     <button type="submit">Login</button>
     <div id="error" class="error"></div>

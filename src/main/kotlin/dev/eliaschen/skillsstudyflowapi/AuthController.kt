@@ -11,9 +11,6 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import java.util.*
 import org.slf4j.LoggerFactory
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
 
 
 data class UserInfo(
@@ -47,15 +44,21 @@ class AuthController {
     @GetMapping("/signin")
     @Operation(
         summary = "Show sign in page",
-        description = "Displays a login form for user authentication"
+        description = "Redirects to the login form HTML page"
     )
-    @ApiResponse(responseCode = "200", description = "Login page displayed successfully")
+    @ApiResponse(responseCode = "302", description = "Redirect to login page")
     fun showSignInPage(
         @RequestParam(required = false, defaultValue = "studyflow://oauth") redirectUri: String
-    ): ResponseEntity<String> {
-        return ResponseEntity.ok()
-            .header("Content-Type", "text/html")
-            .body(File("./login.html").readText())
+    ): ResponseEntity<Void> {
+        val redirectUrl = if (redirectUri != "studyflow://oauth") {
+            "/login.html?redirect_uri=${java.net.URLEncoder.encode(redirectUri, "UTF-8")}"
+        } else {
+            "/login.html"
+        }
+        
+        return ResponseEntity.status(302)
+            .header("Location", redirectUrl)
+            .build()
     }
 
     @PostMapping("/authenticate")
