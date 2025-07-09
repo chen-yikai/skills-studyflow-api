@@ -7,6 +7,7 @@
         *, *::before, *::after {
             box-sizing: border-box;
         }
+
         body {
             font-family: Arial, sans-serif;
             max-width: 400px;
@@ -71,6 +72,7 @@
             margin-bottom: 20px;
             font-size: 14px;
         }
+
         .demo-info table {
             width: 100%;
             border-collapse: collapse;
@@ -125,28 +127,28 @@
     <label><strong>Demo Users:</strong></label>
     <table>
         <thead>
-            <tr>
-                <th>Username</th>
-                <th>Password</th>
-            </tr>
+        <tr>
+            <th>Username</th>
+            <th>Password</th>
+        </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>elias</td>
-                <td>meow</td>
-            </tr>
-            <tr>
-                <td>yang</td>
-                <td>password</td>
-            </tr>
-            <tr>
-                <td>scplay</td>
-                <td>q123456</td>
-            </tr>
-            <tr>
-                <td>user</td>
-                <td>password123</td>
-            </tr>
+        <tr>
+            <td>elias</td>
+            <td>meow</td>
+        </tr>
+        <tr>
+            <td>yang</td>
+            <td>password</td>
+        </tr>
+        <tr>
+            <td>scplay</td>
+            <td>q123456</td>
+        </tr>
+        <tr>
+            <td>user</td>
+            <td>password123</td>
+        </tr>
         </tbody>
     </table>
 </div>
@@ -159,7 +161,10 @@
     </div>
     <button type="submit">Login</button>
     <div id="error" class="error"></div>
-    <div id="success" class="success" style="display: none;"></div>
+    <div id="success" class="success" style="display: none;">
+        <h3 style="color: #d076ff ">Sign In successfully</h3>
+        <p>Redirecting to StudyFlow</p>
+    </div>
 </form>
 
 <script>
@@ -195,16 +200,8 @@
                     '&token_type=' + encodeURIComponent(result.tokenType) +
                     '&username=' + encodeURIComponent(result.username);
 
-                successDiv.innerHTML =
-                    '<h3>Login Successful!</h3>' +
-                    '<p>Redirecting to StudyFlow app...</p>' +
-                    '<p style="font-size: 12px; color: #666; margin-top: 15px;">' +
-                    'If the app doesn\'t open automatically, click the link below:' +
-                    '</p>' +
-                    '<p><a href="' + redirectUrl + '">Open StudyFlow App</a></p>';
-                successDiv.style.display = 'block';
-
                 document.getElementById('loginForm').style.display = 'none';
+                document.getElementById("success").style.display = 'block';
 
                 setTimeout(function () {
                     window.location.href = redirectUrl;

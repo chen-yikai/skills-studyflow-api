@@ -67,6 +67,42 @@ class RecordsController(private val recordService: RecordService) {
         return ResponseEntity.ok(records)
     }
 
+    @GetMapping("/search")
+    @Operation(
+        summary = "Search records", 
+        description = "Search records by name or note data content. Returns records that match the query in either name or note data."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Search completed successfully"),
+            ApiResponse(responseCode = "400", description = "Invalid query parameter")
+        ]
+    )
+    fun searchRecords(
+        @Parameter(description = "Search query to match against record name or note data")
+        @RequestParam("q", required = true) query: String
+    ): ResponseEntity<Map<String, Any>> {
+        logger.info("Searching records with query: '$query'")
+        
+        if (query.isBlank()) {
+            logger.warn("Search failed: Query parameter is blank")
+            return ResponseEntity.badRequest().body(
+                mapOf("message" to "Query parameter cannot be blank")
+            )
+        }
+        
+        val results = recordService.searchRecords(query)
+        logger.info("Search completed. Found ${results.size} records matching '$query'")
+        
+        return ResponseEntity.ok(
+            mapOf(
+                "query" to query,
+                "count" to results.size,
+                "results" to results
+            )
+        )
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Get a single record by ID", description = "Returns a specific record by its ID")
     @ApiResponses(

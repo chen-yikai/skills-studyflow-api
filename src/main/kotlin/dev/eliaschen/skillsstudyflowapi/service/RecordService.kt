@@ -70,4 +70,19 @@ class RecordService(private val recordRepository: InMemoryRecordRepository) {
     fun fileExists(filename: String): Boolean {
         return recordRepository.existsByFile(filename)
     }
+
+    fun searchRecords(query: String): List<Record> {
+        if (query.isBlank()) {
+            return emptyList()
+        }
+        
+        val queryLower = query.lowercase().trim()
+        
+        return recordRepository.findAll().filter { record ->
+            // Search in name
+            record.name.lowercase().contains(queryLower) ||
+            // Search in note data
+            record.note.any { note -> note.data.lowercase().contains(queryLower) }
+        }
+    }
 }
