@@ -78,6 +78,9 @@ class SecurityConfig(
         val origins = allowedOrigins.split(",").map { it.trim() }
         configuration.allowedOrigins = origins
         
+        // Also allow all origins for development (remove in production)
+        configuration.allowedOriginPatterns = listOf("*")
+        
         // Parse comma-separated methods
         val methods = allowedMethods.split(",").map { it.trim() }
         configuration.allowedMethods = methods
