@@ -31,13 +31,23 @@ class CorsFilter : OncePerRequestFilter() {
         
         logger.debug("CORS Filter - Origin: $origin, Method: ${request.method}, URI: ${request.requestURI}")
         
+        // Determine allowed origin
+        val allowedOriginsList = allowedOrigins.split(",").map { it.trim() }
+        val allowedOrigin = when {
+            origin != null && allowedOriginsList.contains(origin) -> origin
+            origin != null && (origin.contains("localhost") || origin.contains("127.0.0.1") || origin.contains("eliaschen.dev")) -> origin
+            else -> "*"
+        }
+        
         // Set CORS headers
-        response.setHeader("Access-Control-Allow-Origin", origin ?: "*")
+        response.setHeader("Access-Control-Allow-Origin", allowedOrigin)
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH")
-        response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept, Origin, User-Agent, Cache-Control, key")
+        response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept, Origin, User-Agent, Cache-Control, key, X-Requested-With")
         response.setHeader("Access-Control-Allow-Credentials", "true")
         response.setHeader("Access-Control-Expose-Headers", "Authorization, Content-Type, Accept, Origin")
         response.setHeader("Access-Control-Max-Age", "3600")
+        
+        logger.debug("CORS Filter - Set Access-Control-Allow-Origin: $allowedOrigin")
         
         // Handle preflight requests
         if ("OPTIONS" == request.method) {

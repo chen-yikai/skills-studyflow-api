@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.Components
+import io.swagger.v3.oas.models.servers.Server
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -22,6 +23,12 @@ class OpenApiConfig {
                     .title("Skills Study Flow API")
                     .description("API for managing study records with authentication")
                     .version("1.0.0")
+            )
+            .servers(
+                listOf(
+                    Server().url("https://skills-studyflow-api.eliaschen.dev").description("Production server"),
+                    Server().url("http://localhost:8080").description("Local development server")
+                )
             )
             .components(
                 Components()
