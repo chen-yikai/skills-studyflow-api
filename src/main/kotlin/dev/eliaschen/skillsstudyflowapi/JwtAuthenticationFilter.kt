@@ -51,25 +51,37 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
             logger.debug("API key header present: ${apiKeyHeader != null}")
             
             // Check for API key authentication first (for easy testing)
-            if (apiKeyHeader != null && apiKeyHeader == "key") {
+            if (apiKeyHeader != null) {
                 logger.info("Processing API key authentication for ${request.requestURI}")
                 
-                // Create a test user for API key authentication
-                val userDetails: UserDetails = User.builder()
-                    .username("test-user")
-                    .password("") // Not needed for API key authentication
-                    .authorities(emptyList())
-                    .build()
+                // Support both "key" for backward compatibility and usernames for testing
+                val username = when (apiKeyHeader) {
+                    "key" -> "test-user"
+                    "elias", "yang", "scplay", "user" -> apiKeyHeader // Valid usernames
+                    else -> {
+                        logger.warn("Invalid API key provided: $apiKeyHeader")
+                        null
+                    }
+                }
                 
-                val authentication = UsernamePasswordAuthenticationToken(
-                    userDetails, 
-                    null, 
-                    userDetails.authorities
-                )
-                authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
-                
-                SecurityContextHolder.getContext().authentication = authentication
-                logger.info("API key authentication successful for user: test-user")
+                if (username != null) {
+                    // Create a user for API key authentication
+                    val userDetails: UserDetails = User.builder()
+                        .username(username)
+                        .password("") // Not needed for API key authentication
+                        .authorities(emptyList())
+                        .build()
+                    
+                    val authentication = UsernamePasswordAuthenticationToken(
+                        userDetails, 
+                        null, 
+                        userDetails.authorities
+                    )
+                    authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
+                    
+                    SecurityContextHolder.getContext().authentication = authentication
+                    logger.info("API key authentication successful for user: $username")
+                }
                 
             } else if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 logger.info("Processing JWT token authentication for ${request.requestURI}")

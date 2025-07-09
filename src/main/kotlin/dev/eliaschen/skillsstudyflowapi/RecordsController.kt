@@ -2,6 +2,7 @@ package dev.eliaschen.skillsstudyflowapi
 
 import dev.eliaschen.skillsstudyflowapi.service.RecordService
 import dev.eliaschen.skillsstudyflowapi.service.Record
+import dev.eliaschen.skillsstudyflowapi.service.RecordCreateRequest
 import dev.eliaschen.skillsstudyflowapi.service.RecordUpdateSchema
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -43,6 +44,28 @@ data class FileInfo(
     val size: Long
 )
 
+data class RecordResponse(
+    val id: String,
+    val name: String,
+    val file: String,
+    val date: String,
+    val note: List<dev.eliaschen.skillsstudyflowapi.service.RecordDataNoteSchema>,
+    val tags: List<String>,
+    val screenshots: List<String>
+)
+
+fun Record.toResponse(): RecordResponse {
+    return RecordResponse(
+        id = this.id,
+        name = this.name,
+        file = this.file,
+        date = this.date,
+        note = this.note,
+        tags = this.tags,
+        screenshots = this.screenshots
+    )
+}
+
 @RestController
 @RequestMapping("/records")
 @Tag(name = "Records", description = "File upload and download API")
@@ -61,10 +84,10 @@ class RecordsController(private val recordService: RecordService) {
     @GetMapping
     @Operation(summary = "Get all records", description = "Returns a list of all records")
     @ApiResponse(responseCode = "200", description = "Records retrieved successfully")
-    fun getRecords(): ResponseEntity<List<Record>> {
+    fun getRecords(): ResponseEntity<List<RecordResponse>> {
         val records = recordService.getAllRecords()
         logger.info("Getting all records. Count: ${records.size}")
-        return ResponseEntity.ok(records)
+        return ResponseEntity.ok(records.map { it.toResponse() })
     }
 
     @GetMapping("/search")
@@ -98,7 +121,7 @@ class RecordsController(private val recordService: RecordService) {
             mapOf(
                 "query" to query,
                 "count" to results.size,
-                "results" to results
+                "results" to results.map { it.toResponse() }
             )
         )
     }
@@ -117,7 +140,7 @@ class RecordsController(private val recordService: RecordService) {
         val record = recordService.getRecordById(id)
         return if (record != null) {
             logger.info("Record found: ${record.name}")
-            ResponseEntity.ok(record)
+            ResponseEntity.ok(record.toResponse())
         } else {
             logger.warn("Record with ID '$id' not found")
             ResponseEntity.status(404).body(
@@ -140,20 +163,20 @@ class RecordsController(private val recordService: RecordService) {
             )
         ]
     )
-    fun createRecord(@RequestBody record: Record): ResponseEntity<Map<String, String>> {
-        logger.info("Creating new record with ID: ${record.id}")
+    fun createRecord(@RequestBody request: RecordCreateRequest): ResponseEntity<Map<String, String>> {
+        logger.info("Creating new record with ID: ${request.id}")
 
         // Check if record already exists
-        if (recordService.recordExists(record.id)) {
-            logger.warn("Validation failed: Record with ID '${record.id}' already exists")
+        if (recordService.recordExists(request.id)) {
+            logger.warn("Validation failed: Record with ID '${request.id}' already exists")
             return ResponseEntity.badRequest().body(
-                mapOf("message" to "Record with ID '${record.id}' already exists")
+                mapOf("message" to "Record with ID '${request.id}' already exists")
             )
         }
 
 
         try {
-            val createdRecord = recordService.createRecord(record)
+            val createdRecord = recordService.createRecordFromRequest(request)
             logger.info("Record created successfully: ${createdRecord.id}")
             return ResponseEntity.status(201).body(mapOf("message" to "Record created successfully", "id" to createdRecord.id))
         } catch (ex: Exception) {
@@ -173,34 +196,25 @@ class RecordsController(private val recordService: RecordService) {
         ]
     )
     fun updateRecord(@PathVariable id: String, @RequestBody updateData: RecordUpdateSchema): ResponseEntity<Map<String, String>> {
-        logger.info("Updating record with ID: $id")
+    logger.info("Updating record with ID: $id")
 
-        try {
-            val recordToUpdate = Record(
-                id = id,
-                name = updateData.name,
-                file = updateData.file,
-                date = updateData.date,
-                note = updateData.note,
-                tags = updateData.tags,
-                screenshots = updateData.screenshots
+    try {
+        val result = recordService.updateRecordFromRequest(id, updateData)
+
+        if (result != null) {
+            logger.info("Record with ID '$id' updated successfully")
+            return ResponseEntity.ok(mapOf("message" to "Record updated successfully", "id" to id))
+        } else {
+            logger.warn("Update failed: Record with ID '$id' not found")
+            return ResponseEntity.status(404).body(
+                mapOf("message" to "Record not found")
             )
-            val result = recordService.updateRecord(id, recordToUpdate)
-            
-            if (result != null) {
-                logger.info("Record with ID '$id' updated successfully")
-                return ResponseEntity.ok(mapOf("message" to "Record updated successfully", "id" to id))
-            } else {
-                logger.warn("Update failed: Record with ID '$id' not found")
-                return ResponseEntity.status(404).body(
-                    mapOf("message" to "Record not found")
-                )
-            }
-        } catch (ex: Exception) {
-            logger.error("Error updating record: ${ex.message}")
-            return ResponseEntity.badRequest().body(mapOf("message" to "Error updating record: ${ex.message}"))
         }
+    } catch (ex: Exception) {
+        logger.error("Error updating record: ${ex.message}")
+        return ResponseEntity.badRequest().body(mapOf("message" to "Error updating record: ${ex.message}"))
     }
+}
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a record", description = "Deletes a record by its ID")

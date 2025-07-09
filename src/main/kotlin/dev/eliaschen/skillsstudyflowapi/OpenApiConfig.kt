@@ -30,6 +30,12 @@ class OpenApiConfig {
                     Server().url("http://localhost:8080").description("Local development server")
                 )
             )
+            .addSecurityItem(
+                SecurityRequirement().addList(bearerSchemeName)
+            )
+            .addSecurityItem(
+                SecurityRequirement().addList(apiKeySchemeName)
+            )
             .components(
                 Components()
                     .addSecuritySchemes(
@@ -47,7 +53,7 @@ class OpenApiConfig {
                             .name("key")
                             .type(SecurityScheme.Type.APIKEY)
                             .`in`(SecurityScheme.In.HEADER)
-                            .description("Enter 'key' for easy testing")
+                            .description("Enter a username for testing (e.g., 'elias', 'yang', 'scplay', 'user') or 'key' for test-user")
                     )
             )
     }

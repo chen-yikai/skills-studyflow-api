@@ -26,7 +26,8 @@ class RecordsControllerTest {
                 RecordDataNoteSchema(time = "60", data = "Test note at 60 seconds")
             ),
             tags = listOf("test", "demo", "kotlin"),
-            screenshots = listOf("screenshot1.png", "screenshot2.png")
+            screenshots = listOf("screenshot1.png", "screenshot2.png"),
+            userId = "test-user"
         )
 
         val createdRecord = recordService.createRecord(testRecord)
@@ -55,7 +56,8 @@ class RecordsControllerTest {
             date = "2025-01-08",
             note = emptyList(),
             tags = listOf("existence"),
-            screenshots = emptyList()
+            screenshots = emptyList(),
+            userId = "test-user"
         )
 
         // Record should not exist initially
@@ -79,7 +81,8 @@ class RecordsControllerTest {
                 RecordDataNoteSchema(time = "45", data = "Test note for single record")
             ),
             tags = listOf("single", "test"),
-            screenshots = listOf("test-screenshot.png")
+            screenshots = listOf("test-screenshot.png"),
+            userId = "test-user"
         )
 
         // Create the record first
