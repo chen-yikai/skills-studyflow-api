@@ -51,4 +51,4 @@ screenshots/
 
 ### Test files ###
 test-*.sh
-test*.txt
+test-*.txt
