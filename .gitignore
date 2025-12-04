@@ -39,4 +39,16 @@ out/
 ### Kotlin ###
 .kotlin
 
-./records/
+### Data directories ###
+records/
+screenshots/
+
+### Log files ###
+*.log
+
+### macOS ###
+.DS_Store
+
+### Test files ###
+test-*.sh
+test*.txt
